@@ -1,6 +1,10 @@
+import tkinter
+
 import requests
 import os
-from datetime import date
+from datetime import date, datetime
+from tkinter import Tk
+from tkcalendar import Calendar
 
 # 100 Days of Python course
 # Code written following the instructor
@@ -47,14 +51,15 @@ def define_graph():
     print(response.text)
 
 
-def set_data_for_today():
+def set_data(minutes, date_selected):
+    time_in_hours = minutes / 60;
     graph_endpoint = f"{pixela_endpoint}/{USERNAME}/graphs/{GRAPH_ID}"
     headers = {
         "X-USER-TOKEN": PIXELA_API_KEY,
     }
     parameters = {
-        "date": date.today().strftime('%Y%m%d'),
-        "quantity": "0.5",
+        "date": date_selected.strftime('%Y%m%d'),
+        "quantity": str(time_in_hours),
     }
     response = requests.post(url=graph_endpoint, json=parameters, headers=headers)
     print(response.text)
@@ -82,6 +87,32 @@ def delete_data():
     print(response.text)
 
 
-# set_data_for_today()
+def on_ok():
+    dt_obj = datetime.strptime(cal.get_date(), '%m/%d/%y')
+    minutes = minutes_entry.get()
+    if minutes:
+        set_data(int(minutes), dt_obj)
+
+
+window = Tk()
+minutes_label = tkinter.Label(text="Minutes: ")
+minutes_label.grid(row=0, column=0)
+minutes_entry = tkinter.Entry()
+minutes_entry.grid(row=0, column=1, padx=10, pady=10)
+date_label = tkinter.Label(text="Date: ")
+date_label.grid(row=1, column=0)
+cal = Calendar(window, selectmode='day',
+               year=int(date.today().year),
+               month=int(date.today().month),
+               day=int(date.today().day))
+cal.grid(row=1, column=1, padx=10)
+ok_button = tkinter.Button(text="OK", command=on_ok)
+ok_button.grid(row=2, column=1, pady=10)
+cancel_button = tkinter.Button(text="Cancel")
+
+window.mainloop()
+
+# time_wrote = 43 / 60
+# set_data_for_today(str(time_wrote))
 # update_data()
-delete_data()
+# delete_data()
